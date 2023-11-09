@@ -1,0 +1,6 @@
+*.swo
+*.swp
+
+compile_commands.json
+
+/modules/sdcc
