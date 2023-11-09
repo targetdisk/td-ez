@@ -4,3 +4,5 @@
 compile_commands.json
 
 /modules/sdcc
+sdcc.env.bash
+/var
