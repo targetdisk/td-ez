@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-gitroot=$(git rev-parse --show-toplevel)
+[ -z "$gitroot" ] && gitroot=$(git rev-parse --show-toplevel)
 prefix="$gitroot/var"
 
 cd "$gitroot/modules/sdcc"
@@ -32,9 +32,3 @@ command -v autoreconf && autoreconf -i
 
 make -j$(nproc)
 make install
-
-cat > "$gitroot/sdcc.env.bash" <<EOF
-. "$gitroot/modules/bash-util/env.bash"
-
-add_path "$gitroot/var/bin"
-EOF

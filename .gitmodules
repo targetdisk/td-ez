@@ -1,3 +1,6 @@
 [submodule "modules/bash-util"]
 	path = modules/bash-util
 	url = https://github.com/targetdisk/bash-util
+[submodule "modules/fxload"]
+	path = modules/fxload
+	url = https://github.com/targetdisk/fxload
