@@ -1,4 +1,7 @@
-CC ?= sdcc
+export PATH := var/bin:$(PATH)
+
+src/td-ez.ihex: modules/libfx2 $(wildcard src/*.c src/*.h)
+	$(MAKE) -Csrc
 
 var:
 	mkdir $@
@@ -7,11 +10,15 @@ modules:
 	mkdir $@
 
 modules/sdcc: modules var
-	svn checkout svn://svn.code.sf.net/p/sdcc/code/trunk/sdcc $@
+	git submodule update --init --recursive -- $@
 	scripts/build-sdcc
 
 modules/fxload:
 	git submodule update --init --recursive -- $@
+
+modules/libfx2: sdcc
+	git submodule update --init --recursive -- $@
+	PATH=$(PATH) $(MAKE) -j$(shell nproc) -C$@/firmware/library
 
 var/bin/fxload: modules/fxload
 	$(MAKE) -C$< -j$(shell nproc)
@@ -20,6 +27,6 @@ var/bin/fxload: modules/fxload
 fxload: var/bin/fxload
 
 sdcc:
-	command -v $(CC) || $(MAKE) modules/sdcc
+	command -v $@ || $(MAKE) modules/sdcc
 
 .PHONY: sdcc fxload

@@ -4,3 +4,10 @@
 [submodule "modules/fxload"]
 	path = modules/fxload
 	url = https://github.com/targetdisk/fxload
+[submodule "modules/libfx2"]
+	path = modules/libfx2
+	url = https://github.com/whitequark/libfx2
+[submodule "modules/sdcc"]
+	path = modules/sdcc
+	url = https://github.com/targetdisk/sdcc
+	branch = non-deleter
