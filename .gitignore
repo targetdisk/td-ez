@@ -7,3 +7,10 @@ compile_commands.json
 tags
 
 /var
+
+build
+*.o
+*.a
+*.d
+
+efi-booter/efi-booter.ihex

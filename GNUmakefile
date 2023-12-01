@@ -1,6 +1,17 @@
 export PATH := var/bin:$(PATH)
 PYTHON ?= python3
 
+efi-booter/efi-booter.ihex: libfx2 $(wildcard efi-booter/*.c efi-booter/*.h)
+	$(MAKE) -C efi-booter
+
+efi-booter: efi-booter/efi-booter.ihex
+
+tags: libfx2
+	find modules/libfx2/firmware/library -name '*.c' -print0 | xargs -0 ctags -dt
+	find modules/libfx2/firmware/library -name '*.h' -print0 | xargs -0 ctags -adt
+	find efi-booter -name '*.c' -print0 | xargs -0 ctags -adt
+	find efi-booter -name '*.h' -print0 | xargs -0 ctags -adt
+
 var:
 	mkdir -p $@
 	$(PYTHON) -m venv var
@@ -20,4 +31,4 @@ libfx2: var/bin/fx2tool
 sdcc:
 	command -v $@ || $(MAKE) var/bin/$@
 
-.PHONY: sdcc libfx2 efi-booter
+.PHONY: tags sdcc libfx2 efi-booter
