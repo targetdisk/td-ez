@@ -1,6 +1,9 @@
+.DS_Store
+
 *.swo
 *.swp
 
 compile_commands.json
+tags
 
 /var
