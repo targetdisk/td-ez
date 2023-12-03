@@ -15,3 +15,7 @@ build
 *.d
 
 efi-booter/efi-booter.ihex
+
+*-backups
+*.lck
+\#auto_saved_files#
