@@ -1,3 +1,4 @@
+#include <fx2delay.h>
 #include <fx2regs.h>
 #include <fx2usb.h>
 
