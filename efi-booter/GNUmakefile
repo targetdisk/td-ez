@@ -1,4 +1,5 @@
 TARGET  = efi-booter
+SOURCES = main efi_scsi
 LIBRARIES = fx2 fx2usb fx2usbmassstor fx2isrs
 MODEL     = medium
 

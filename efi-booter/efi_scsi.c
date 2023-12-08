@@ -15,7 +15,7 @@ static uint32_t block_index;
 static uint32_t blocks_left;
 static uint32_t block_addr;
 
-static DEFINE_SPIFLASH_FNS( spiflash, CS_PIN, SCK_PIN, MISO_PIN, MOSI_PIN );
+static DEFINE_SPIFLASH_FNS( spiflash, CS_PIN, SCK_PIN, MISO_PIN, MOSI_PIN )
 
 void efi_spi_init( void )
 {
@@ -82,7 +82,7 @@ bool efi_scsi_data_out( uint8_t lun, __xdata const uint8_t *buffer, uint16_t len
       return false;
 
     block_addr = block_index * BYTES_PER_SECTOR;
-    spiflash_write( block_index, buffer, BYTES_PER_SECTOR );
+    spiflash_pp( block_index, buffer, BYTES_PER_SECTOR );
 
     block_index++;
     blocks_left--;
@@ -99,7 +99,7 @@ done:
   return true;
 }
 
-bool efi_scsi_data_in (uint8_t lun, __xdata uint8_t *data, uint16_t length) __reentrant
+bool efi_scsi_data_in (uint8_t lun, __xdata uint8_t *buffer, uint16_t length) __reentrant
 {
   lun;
 
