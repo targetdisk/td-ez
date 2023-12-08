@@ -1,6 +1,7 @@
 #ifndef BOOTER_USB_H
 #define BOOTER_USB_H
 
+#include <fx2lib.h>
 #include <fx2regs.h>
 #include <fx2usb.h>
 #include <fx2usbmassstor.h>
@@ -52,6 +53,42 @@ usb_desc_endpoint_c usb_endpoint_ep6_in = {
   .bmAttributes         = USB_XFER_BULK,
   .wMaxPacketSize       = 512,
   .bInterval            = 0,
+};
+
+usb_configuration_c usb_config_efi = {
+  {
+    .bLength              = sizeof(struct usb_desc_configuration),
+    .bDescriptorType      = USB_DESC_CONFIGURATION,
+    .bNumInterfaces       = 1,
+    .bConfigurationValue  = 1,
+    .iConfiguration       = 0,
+    .bmAttributes         = USB_ATTR_RESERVED_1,
+    .bMaxPower            = 50,
+  },
+  {
+    { .interface  = &usb_interface_mass_storage },
+    { .endpoint   = &usb_endpoint_ep2_out },
+    { .endpoint   = &usb_endpoint_ep6_in  },
+    { 0 }
+  }
+};
+
+usb_configuration_set_c usb_configs_efi[] = {
+  &usb_config_efi,
+};
+
+usb_ascii_string_c usb_strings_efi[] = {
+  [0] = "targetdisk1394@gmail.com",
+  [1] = "Target Disk EFI Flash Media (SPI flash)",
+  [2] = "000000000000",
+};
+
+__xdata struct usb_descriptor_set usb_descriptor_set = {
+  .device           = &usb_device,
+  .config_count     = ARRAYSIZE(usb_configs_efi),
+  .configs          = usb_configs_efi,
+  .string_count     = ARRAYSIZE(usb_strings_efi),
+  .strings          = usb_strings_efi,
 };
 
 usb_mass_storage_bbb_state_t usb_mass_storage_state = {
