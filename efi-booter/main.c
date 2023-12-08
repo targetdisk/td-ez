@@ -2,6 +2,16 @@
 #include <fx2usb.h>
 
 #include "booter-usb.h"
+#include "efi_scsi.h"
+
+volatile bool pending_ep6_in;
+
+void isr_IBN(void) __interrupt {
+  pending_ep6_in = true;
+  CLEAR_USB_IRQ();
+  NAKIRQ = _IBN;
+  IBNIRQ = _IBNI_EP6;
+}
 
 int main() {
   CPUCS = _CLKSPD1;
@@ -40,15 +50,18 @@ int main() {
   SYNCDELAY;
   FIFORESET = 0;
 
+  efi_spi_init();
+
+  // Re-enumerate, to make sure our descriptors are picked up correctly.
   usb_init( true );
 
   for ( ;; )
   {
     /* Handle OUT requests from host */
-    if(!(EP2CS & _EMPTY))
+    if ( !( EP2CS & _EMPTY ) )
     {
-      uint16_t length = (EP2BCH << 8) | EP2BCL;
-      if(usb_mass_storage_bbb_bulk_out(&usb_mass_storage_state, EP2FIFOBUF, length))
+      uint16_t length = ( EP2BCH << 8 ) | EP2BCL;
+      if ( usb_mass_storage_bbb_bulk_out( &usb_mass_storage_state, EP2FIFOBUF, length ) )
       {
         EP2BCL = 0;
       }
@@ -57,6 +70,26 @@ int main() {
         EP2CS  = _STALL;
         EP6CS  = _STALL;
       }
+    }
+
+    if ( pending_ep6_in )
+    {
+      __xdata uint16_t length;
+      if ( usb_mass_storage_bbb_bulk_in( &usb_mass_storage_state, EP6FIFOBUF, &length ) )
+      {
+        if ( length > 0 )
+        {
+          EP6BCH = length >> 8;
+          SYNCDELAY;
+          EP6BCL = length;
+        }
+      }
+      else
+      {
+        EP6CS  = _STALL;
+      }
+
+      pending_ep6_in = false;
     }
   }
 }

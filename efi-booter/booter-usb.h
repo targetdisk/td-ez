@@ -2,7 +2,6 @@
 #define BOOTER_USB_H
 
 #include <fx2regs.h>
-#include <fx2uf2.h>
 #include <fx2usb.h>
 #include <fx2usbmassstor.h>
 
@@ -59,7 +58,7 @@ usb_mass_storage_bbb_state_t usb_mass_storage_state = {
   .interface    = 0,
   .max_in_size  = 512,
 
-  .command      = uf2_scsi_command,
+  .command      = efi_scsi_command,
   .data_out     = efi_scsi_data_out,  /* SPI flash I/O */
   .data_in      = efi_scsi_data_in,   /* SPI flash I/O */
 };
