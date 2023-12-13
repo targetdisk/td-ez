@@ -8,3 +8,6 @@
 	path = modules/sdcc
 	url = https://github.com/targetdisk/sdcc
 	branch = non-deleter
+[submodule "modules/efi"]
+	path = modules/efi
+	url = https://github.com/targetdisk/targetdisk-efi.git

@@ -20,6 +20,11 @@ var/bin/sdcc: var
 	git submodule update --init --recursive -- $@
 	scripts/build-sdcc
 
+var/efi/targetdisk.efi:
+	git submodule update --init --recursive -- modules/efi
+	$(MAKE) -Cmodules/efi
+	cp modules/efi/targetdisk.efi $@
+
 var/bin/fx2tool:
 	$(MAKE) sdcc
 	git submodule update --init --recursive -- $@
