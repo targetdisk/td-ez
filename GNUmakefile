@@ -13,8 +13,14 @@ efi-booter: efi-booter/efi-booter.ihex
 var/spiflash:
 	mkdir -p $@
 
-var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img: var/spiflash
+var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img: var/spiflash sgdisk
 	dd if=/dev/zero bs=$(SPI_PAGE_SIZE) count=$(SPI_N_PAGES) of=$@
+	sgdisk -a 1 --new=0:0:0 $@
+	sgdisk --change-name=1:"Targetdisk (EFI)" $@
+	sgdisk --typecode=1:ef00 $@
+	sgdisk -A 1:set:0 $@
+	sgdisk -A 1:set:60 $@
+	@sgdisk -p $@
 
 blank-img: var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img
 
@@ -48,4 +54,7 @@ libfx2: var/bin/fx2tool
 sdcc:
 	command -v $@ || $(MAKE) var/bin/$@
 
-.PHONY: tags sdcc libfx2 efi-booter blank-img
+sgdisk:
+	@command -v $@ || (echo Please install gptfdisk/gdisk >&2)
+
+.PHONY: tags sdcc libfx2 efi-booter blank-img sgdisk
