@@ -1,10 +1,22 @@
 export PATH := var/bin:$(PATH)
 PYTHON ?= python3
 
+# Pulled from the Winbond W25Q128FV dataheet
+SPI_PAGE_SIZE ?= 256
+SPI_N_PAGES ?= 65536
+
 efi-booter/efi-booter.ihex: libfx2 $(wildcard efi-booter/*.c efi-booter/*.h)
 	$(MAKE) -C efi-booter
 
 efi-booter: efi-booter/efi-booter.ihex
+
+var/spiflash:
+	mkdir -p $@
+
+var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img: var/spiflash
+	dd if=/dev/zero bs=$(SPI_PAGE_SIZE) count=$(SPI_N_PAGES) of=$@
+
+blank-img: var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img
 
 tags: libfx2
 	find modules/libfx2/firmware/library -name '*.c' -print0 | xargs -0 ctags -dt
@@ -36,4 +48,4 @@ libfx2: var/bin/fx2tool
 sdcc:
 	command -v $@ || $(MAKE) var/bin/$@
 
-.PHONY: tags sdcc libfx2 efi-booter
+.PHONY: tags sdcc libfx2 efi-booter blank-img
