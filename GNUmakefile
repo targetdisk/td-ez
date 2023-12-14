@@ -17,7 +17,7 @@ var:
 	$(PYTHON) -m venv var
 
 var/bin/sdcc: var
-	git submodule update --init --recursive -- $@
+	git submodule update --init --recursive -- modules/sdcc
 	scripts/build-sdcc
 
 var/efi/targetdisk.efi:
