@@ -27,7 +27,7 @@ var/efi/targetdisk.efi:
 
 var/bin/fx2tool:
 	$(MAKE) sdcc
-	git submodule update --init --recursive -- $@
+	git submodule update --init --recursive -- modules/libfx2
 	PATH=$(PATH) $(MAKE) -j$(shell nproc) -C$@/firmware/library
 	. var/bin/activate && $(PYTHON) -m pip install $@/software
 
