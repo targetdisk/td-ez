@@ -1,4 +1,4 @@
-export PATH := var/bin:$(PATH)
+export PATH := $(CURDIR)/var/bin:$(PATH)
 PYTHON ?= python3
 
 # Pulled from the Winbond W25Q128FV dataheet
@@ -46,8 +46,8 @@ var/efi/targetdisk.efi:
 var/bin/fx2tool:
 	$(MAKE) sdcc
 	git submodule update --init --recursive -- modules/libfx2
-	PATH=$(PATH) $(MAKE) -j$(shell nproc) -C$@/firmware/library
-	. var/bin/activate && $(PYTHON) -m pip install $@/software
+	PATH=$(PATH) $(MAKE) -j$(shell nproc) -Cmodules/libfx2/firmware/library
+	. var/bin/activate && $(PYTHON) -m pip install modules/libfx2/software
 
 libfx2: var/bin/fx2tool
 
