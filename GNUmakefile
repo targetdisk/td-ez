@@ -4,6 +4,8 @@ PYTHON ?= python3
 # Pulled from the Winbond W25Q128FV dataheet
 SPI_PAGE_SIZE ?= 256
 SPI_N_PAGES ?= 65536
+BLANK_IMG ?= var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img
+ESP_IMG ?= var/spiflash/ESP_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img
 
 efi-booter/efi-booter.ihex: libfx2 $(wildcard efi-booter/*.c efi-booter/*.h)
 	$(MAKE) -C efi-booter
@@ -13,7 +15,7 @@ efi-booter: efi-booter/efi-booter.ihex
 var/spiflash:
 	mkdir -p $@
 
-var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img: var/spiflash sgdisk
+$(BLANK_IMG): var/spiflash var/.has_sgdisk
 	dd if=/dev/zero bs=$(SPI_PAGE_SIZE) count=$(SPI_N_PAGES) of=$@
 	sgdisk -a 1 --new=0:0:0 $@
 	sgdisk --change-name=1:"Targetdisk (EFI)" $@
@@ -23,7 +25,16 @@ var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img: var/spiflash sgdisk
 	scripts/mk-esp $@
 	@sgdisk -p $@
 
-blank-img: var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img
+blank-img: $(BLANK_IMG)
+
+var/mnt: var
+	mkdir -p $@
+
+$(ESP_IMG): $(BLANK_IMG) var/mnt
+	cp $(BLANK_IMG) $@
+	scripts/populate-esp $@
+
+esp-img: $(ESP_IMG)
 
 tags: libfx2
 	find modules/libfx2/firmware/library -name '*.c' -print0 | xargs -0 ctags -dt
@@ -66,7 +77,8 @@ libfx2: var/bin/fx2tool
 sdcc:
 	command -v $@ || $(MAKE) var/bin/$@
 
-sgdisk:
-	@command -v $@ || (echo Please install gptfdisk/gdisk >&2)
+var/.has_sgdisk:
+	@command -v sgdisk || (echo Please install gptfdisk/gdisk >&2 && exit 1)
+	touch var/.has_sgdisk
 
-.PHONY: tags sdcc libfx2 efi-booter blank-img sgdisk efi efitest
+.PHONY: tags sdcc libfx2 efi-booter blank-img esp-img efi efitest

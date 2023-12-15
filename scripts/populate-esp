@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+: '
+  *  populate-esp
+  *  ------------
+  *  Create a copy of our SPI flash disk image and copy files in var/efi to
+  *  its EFI system partition.
+  '
+
+[ -z "$gitroot" ] && gitroot=$(git rev-parse --show-toplevel)
+. "$gitroot/modules/bash-util/logging.bash"
+
+esp_mnt="$gitroot/var/mnt"
+
+grab_lodev() {
+    while :; do
+        (echo Trying to grab a loopback device... >&2)
+        sudo -v
+        lodev=$(sudo losetup -f)
+        sudo losetup "$lodev" "$1" && return $?
+    done
+}
+
+setup() {
+    case $(uname) in
+        Linux)
+            sudo -v
+            grab_lodev $@ && \
+            sudo partprobe $lodev && \
+            echo LODEV: $lodev && \
+            esp_part="$lodev"'p1' && \
+            sudo mount "$esp_part" "$esp_mnt"
+            return $?
+            ;;
+        *)
+            die 'Unsupported OS!  Patches welcome :)'
+            ;;
+    esac
+}
+
+cleanup() {
+    case $(uname) in
+        Linux)
+            sudo -v
+            sudo umount "$esp_mnt" && \
+            sudo losetup -d "$lodev" && \
+            sync
+            return $?
+            ;;
+        *)
+            die 'Unsupported OS!  Patches welcome :)'
+            ;;
+    esac
+}
+
+sudo -v
+setup $@ || exit $?
+sudo cp -rv var/efi/* "$esp_mnt/"
+cleanup
