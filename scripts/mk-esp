@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+[ -z "$gitroot" ] && gitroot=$(git rev-parse --show-toplevel)
+. "$gitroot/scripts/esp-info" "$1"
+
+command -v mkfs.vfat \
+    || die "ERROR: mkfs.vfat not found!  Please install dosfstools."
+
+
+mkfs.vfat -S 512 --offset $FIRST_SECTOR "$1" $FAT_BLOCK_COUNT

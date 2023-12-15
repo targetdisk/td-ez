@@ -20,6 +20,7 @@ var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img: var/spiflash sgdisk
 	sgdisk --typecode=1:ef00 $@
 	sgdisk -A 1:set:0 $@
 	sgdisk -A 1:set:60 $@
+	scripts/mk-esp $@
 	@sgdisk -p $@
 
 blank-img: var/spiflash/blank_$(SPI_PAGE_SIZE)x$(SPI_N_PAGES).img
@@ -38,10 +39,18 @@ var/bin/sdcc: var
 	git submodule update --init --recursive -- modules/sdcc
 	scripts/build-sdcc
 
-var/efi/targetdisk.efi:
+modules/efi/gfx/img_data.h:
 	git submodule update --init --recursive -- modules/efi
+	. var/bin/activate && cd modules/efi/gfx && ./configure.py
+
+var/efi: var
+	mkdir -p $@
+
+var/efi/targetdisk.efi: modules/efi/gfx/img_data.h var/efi
 	$(MAKE) -Cmodules/efi
 	cp modules/efi/targetdisk.efi $@
+
+efi: var/efi/targetdisk.efi
 
 var/bin/fx2tool:
 	$(MAKE) sdcc
@@ -57,4 +66,4 @@ sdcc:
 sgdisk:
 	@command -v $@ || (echo Please install gptfdisk/gdisk >&2)
 
-.PHONY: tags sdcc libfx2 efi-booter blank-img sgdisk
+.PHONY: tags sdcc libfx2 efi-booter blank-img sgdisk efi

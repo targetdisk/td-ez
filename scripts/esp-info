@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# esp-info -- Get sector info on a dd image's EFI System Partition.
+
+[ -z "$gitroot" ] && gitroot=$(git rev-parse --show-toplevel)
+. "$gitroot/modules/bash-util/logging.bash"
+
+[ -z "$1" ] && die "Usage: $0 IMG_FILE"
+
+FIRST_SECTOR_RX='^First\s\+sector:\s\+'
+LAST_SECTOR_RX='^Last\s\+sector:\s\+'
+SGDSK_OUTPUT=$(sgdisk -i 1 "$1")
+
+FIRST_SECTOR=$(grep "$FIRST_SECTOR_RX" <<<"$SGDSK_OUTPUT" | sed "s/$FIRST_SECTOR_RX\([0-9]\+\).*/\1/" )
+LAST_SECTOR=$(grep "$LAST_SECTOR_RX" <<<"$SGDSK_OUTPUT" | sed "s/$LAST_SECTOR_RX\([0-9]\+\).*/\1/" )
+
+: " FAT Blocks are apparently always 1024 bytes, so we multiply our number of
+  * 512-byte sectors by two.
+  "
+FAT_BLOCK_COUNT=$(( $((LAST_SECTOR - FIRST_SECTOR)) * 2))
