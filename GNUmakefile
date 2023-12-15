@@ -52,6 +52,9 @@ var/efi/targetdisk.efi: modules/efi/gfx/img_data.h var/efi
 
 efi: var/efi/targetdisk.efi
 
+efitest: efi
+	modules/efi/qemu_test.sh var/efi
+
 var/bin/fx2tool:
 	$(MAKE) sdcc
 	git submodule update --init --recursive -- modules/libfx2
@@ -66,4 +69,4 @@ sdcc:
 sgdisk:
 	@command -v $@ || (echo Please install gptfdisk/gdisk >&2)
 
-.PHONY: tags sdcc libfx2 efi-booter blank-img sgdisk efi
+.PHONY: tags sdcc libfx2 efi-booter blank-img sgdisk efi efitest
