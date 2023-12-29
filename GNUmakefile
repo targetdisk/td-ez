@@ -12,6 +12,9 @@ efi-booter/efi-booter.ihex: libfx2 $(wildcard efi-booter/*.c efi-booter/*.h)
 
 efi-booter: efi-booter/efi-booter.ihex
 
+load-booter: efi-booter/efi-booter.ihex
+	sudo fx2tool load $<
+
 var/spiflash:
 	mkdir -p $@
 
@@ -30,11 +33,14 @@ blank-img: $(BLANK_IMG)
 var/mnt: var
 	mkdir -p $@
 
-$(ESP_IMG): $(BLANK_IMG) var/mnt
+$(ESP_IMG): $(BLANK_IMG) var/efi/targetdisk.efi var/mnt
 	cp $(BLANK_IMG) $@
 	scripts/populate-esp $@
 
 esp-img: $(ESP_IMG)
+
+flash-spi: $(ESP_IMG)
+	minipro -p W25Q128FV@SOIC8 -w $<
 
 tags: libfx2
 	find modules/libfx2/firmware/library -name '*.c' -print0 | xargs -0 ctags -dt
