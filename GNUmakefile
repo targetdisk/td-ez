@@ -15,7 +15,7 @@ efi-booter: efi-booter/efi-booter.ihex
 load-booter: efi-booter/efi-booter.ihex
 	sudo fx2tool load $<
 
-var/spiflash:
+var/spiflash: var
 	mkdir -p $@
 
 $(BLANK_IMG): var/spiflash var/.has_sgdisk
@@ -72,7 +72,7 @@ efi: var/efi/targetdisk.efi
 efitest: efi
 	modules/efi/qemu_test.sh var/efi
 
-var/bin/fx2tool:
+var/bin/fx2tool: var
 	$(MAKE) sdcc
 	git submodule update --init --recursive -- modules/libfx2
 	PATH=$(PATH) $(MAKE) -j$(shell nproc) -Cmodules/libfx2/firmware/library
@@ -83,7 +83,7 @@ libfx2: var/bin/fx2tool
 sdcc:
 	command -v $@ || $(MAKE) var/bin/$@
 
-var/.has_sgdisk:
+var/.has_sgdisk: var
 	@command -v sgdisk || (echo Please install gptfdisk/gdisk >&2 && exit 1)
 	touch var/.has_sgdisk
 
